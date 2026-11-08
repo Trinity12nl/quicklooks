@@ -272,6 +272,12 @@ colours. Other apps can ship a Markdown previewer too; if one of them wins,
 turn it off under System Settings → General → Login Items & Extensions →
 Quick Look.
 
+A **Preview | Source** switch in the top-right corner shows the Markdown
+source instead: line-numbered and coloured like the other previewers, with
+heading markers, emphasis, code spans, links, list and quote markers, tables,
+front matter and HTML picked out, and fenced code coloured by its language
+tag. Every file opens in Preview.
+
 **SQLite** shows the header metadata, then every table with its row count, and
 columns, indexes and 10 rows for the first 20. The database is opened
 read-only with `immutable=1`, so WAL writes not yet checkpointed are not shown.

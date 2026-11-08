@@ -68,8 +68,13 @@ class TextPreviewController: NSViewController, QLPreviewingController {
     }
 
     func preparePreviewOfFile(at url: URL) async throws {
-        let rendered = try Self.render(url: url)
-        if !Self.wrapsLines(for: url) {
+        display(try Self.render(url: url), wraps: Self.wrapsLines(for: url))
+    }
+
+    /// Shows `rendered` from the top. Subclasses can call it again to swap
+    /// what is shown, like the Markdown previewer's Preview/Source switch.
+    func display(_ rendered: NSAttributedString, wraps: Bool = true) {
+        if !wraps {
             let unbounded = NSSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
             textView.maxSize = unbounded
             textView.isHorizontallyResizable = true

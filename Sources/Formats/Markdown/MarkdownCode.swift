@@ -12,7 +12,7 @@ enum MarkdownCode {
 
     static func highlight(_ code: String, language: String?) -> NSMutableAttributedString {
         let out = NSMutableAttributedString()
-        guard let syntax = language.flatMap({ syntaxes[$0.lowercased()] }) else {
+        guard let syntax = syntax(for: language) else {
             out.append(NSAttributedString(string: code, attributes: [
                 .font: MarkdownStyle.code, .foregroundColor: MarkdownStyle.codeText
             ]))
@@ -32,6 +32,11 @@ enum MarkdownCode {
             if color == PreviewStyle.literal { out.addAttribute(.font, value: MarkdownStyle.codeBold, range: range) }
         }
         return out
+    }
+
+    /// The scanner settings for a fence's language tag, if it is one we know.
+    static func syntax(for language: String?) -> Syntax? {
+        language.flatMap { syntaxes[$0.lowercased()] }
     }
 
     /// PreviewStyle colour as the scanner writes it -> colour on the green fill.
