@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **FIX** An XML `.config` (`web.config`, `app.config`) got INI colours; the
+  INI previewer now hands a file that starts with `<` to the XML renderer.
+
 - **FIX** `.ini`, `.toml`, `.cfg` and `.config` got no preview on Macs where
   nothing declares `com.microsoft.ini` and `public.toml` (such as macOS
   26.6.2). The host app now imports both types.
