@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **FIX** `.ini`, `.toml`, `.cfg` and `.config` got no preview on Macs where
+  nothing declares `com.microsoft.ini` and `public.toml` (such as macOS
+  26.6.2). The host app now imports both types.
+
 - **NEW** Markdown previewer (`.md`, `.markdown`): rendered headings, emphasis,
   lists, task lists, quotes, tables and links, with code in green monospace.
   YAML front matter is shown as a block at the top. Works in light and dark mode.
