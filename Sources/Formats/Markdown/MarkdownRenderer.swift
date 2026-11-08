@@ -31,7 +31,7 @@ enum MarkdownRenderer {
 
         let out = reportHeader(url, size: size, facts)
         if let frontMatter {
-            let box = MarkdownBlock(.fill(MarkdownStyle.frontMatterFill), padding: 12, marginBelow: 14)
+            let box = MarkdownBlock(.fill(MarkdownStyle.frontMatterFill), padding: 16, marginBelow: 18)
             out.append(NSAttributedString(string: frontMatter + "\n", attributes: [
                 .font: MarkdownStyle.code, .foregroundColor: MarkdownStyle.secondary,
                 .paragraphStyle: MarkdownStyle.paragraph(after: 0, lineSpacing: 2, blocks: [box])
@@ -67,11 +67,16 @@ private struct BlockWriter {
     private var table: (id: Int, grid: NSTextTable, columns: [PresentationIntent.TableColumn])?
     private var row = -1
     private var nextColumn = 0
+    private var previousList: Int?
 
     init(out: NSMutableAttributedString) { self.out = out }
 
     mutating func write(_ text: AttributedSubstring, intent: PresentationIntent?) {
         let parts = intent?.components ?? []           // innermost first
+        let lists = parts.filter { $0.kind == .orderedList || $0.kind == .unorderedList }
+        let outerList = lists.last?.identity
+        if let previousList, previousList != outerList { spaceAfterLastParagraph(14) }
+        previousList = outerList
         guard let kind = parts.first?.kind else {
             closeTable()
             out.append(inline(text, font: MarkdownStyle.body, paragraph: MarkdownStyle.paragraph()))
@@ -86,31 +91,30 @@ private struct BlockWriter {
         let quotes = parts.filter { $0.kind == .blockQuote }
         let quoteBlock = quotes.first.map { q in
             quoteBlocks[q.identity] ?? {
-                let b = MarkdownBlock(.quoteBar, marginBelow: 10)
+                let b = MarkdownBlock(.quoteBar, marginBelow: 14)
                 b.setWidth(14, type: .absoluteValueType, for: .padding, edge: .minX)
                 quoteBlocks[q.identity] = b
                 return b
             }()
         }
         let color = quotes.isEmpty ? MarkdownStyle.text : MarkdownStyle.secondary
-        let lists = parts.filter { $0.kind == .orderedList || $0.kind == .unorderedList }
-        let indent = CGFloat(max(lists.count - 1, 0)) * 22
+        let indent = CGFloat(max(lists.count - 1, 0)) * 24
 
         switch kind {
         case .header(let level):
-            let rule: [NSTextBlock] = level <= 2 ? [MarkdownBlock(.dottedRule, marginBelow: 14)] : []
-            let style = MarkdownStyle.paragraph(before: level <= 2 ? 10 : 6, after: level <= 2 ? 6 : 8,
+            let rule: [NSTextBlock] = level <= 2 ? [MarkdownBlock(.dottedRule, marginBelow: 18)] : []
+            let style = MarkdownStyle.paragraph(before: level <= 2 ? 14 : 8, after: level <= 2 ? 8 : 10,
                                                 blocks: rule)
             out.append(inline(text, font: MarkdownStyle.heading(level), paragraph: style, color: color))
-        case .codeBlock:
+        case .codeBlock(let language):
             var code = String(text.characters)
             if code.hasSuffix("\n") { code.removeLast() }
-            let box = MarkdownBlock(.fill(MarkdownStyle.codeFill), padding: 14, marginBelow: 12)
-            out.append(NSAttributedString(string: code + "\n", attributes: [
-                .font: MarkdownStyle.code, .foregroundColor: MarkdownStyle.codeText,
-                .paragraphStyle: MarkdownStyle.paragraph(indent: indent, after: 0, lineSpacing: 2,
-                                                         blocks: [quoteBlock, box].compactMap { $0 })
-            ]))
+            let box = MarkdownBlock(.fill(MarkdownStyle.codeFill), padding: 18, marginBelow: 16)
+            let block = MarkdownCode.highlight(code + "\n", language: language)
+            block.addAttribute(.paragraphStyle, value: MarkdownStyle.paragraph(
+                indent: indent, after: 0, lineSpacing: 3, blocks: [quoteBlock, box].compactMap { $0 }),
+                range: NSRange(location: 0, length: block.length))
+            out.append(block)
         case .thematicBreak:
             out.append(NSAttributedString(string: "\n", attributes: [
                 .font: NSFont.systemFont(ofSize: 4),
@@ -122,8 +126,8 @@ private struct BlockWriter {
                let list = lists.first {
                 let marker = seenListItems.insert(item.identity).inserted
                     ? listMarker(item.kind, ordered: list.kind == .orderedList, depth: lists.count) : nil
-                let hanging: CGFloat = 22
-                let style = MarkdownStyle.paragraph(indent: indent, hanging: hanging, after: 4, blocks: blocks)
+                let hanging: CGFloat = 24
+                let style = MarkdownStyle.paragraph(indent: indent, hanging: hanging, after: 6, blocks: blocks)
                 var body = inline(text, font: MarkdownStyle.body, paragraph: style, color: color)
                 var bullet = marker.map { $0 + "\t" } ?? "\t"
                 (body, bullet) = taskBox(body, bullet: bullet, isFirst: marker != nil)
@@ -140,6 +144,17 @@ private struct BlockWriter {
     }
 
     mutating func finish() { closeTable() }
+
+    /// List items sit close together; the block after a list gets the
+    /// normal paragraph gap again, by widening the list's last paragraph.
+    private func spaceAfterLastParagraph(_ spacing: CGFloat) {
+        guard out.length > 0 else { return }
+        let range = (out.string as NSString).paragraphRange(for: NSRange(location: out.length - 1, length: 0))
+        guard let style = out.attribute(.paragraphStyle, at: range.location, effectiveRange: nil) as? NSParagraphStyle,
+              let wider = style.mutableCopy() as? NSMutableParagraphStyle else { return }
+        wider.paragraphSpacing = max(wider.paragraphSpacing, spacing)
+        out.addAttribute(.paragraphStyle, value: wider, range: range)
+    }
 
     // MARK: lists
 
@@ -193,9 +208,9 @@ private struct BlockWriter {
                                      startingColumn: column, columnSpan: 1)
         block.setWidth(0.5, type: .absoluteValueType, for: .border)
         block.setBorderColor(MarkdownStyle.tableBorder)
-        block.setWidth(6, type: .absoluteValueType, for: .padding)
-        block.setWidth(10, type: .absoluteValueType, for: .padding, edge: .minX)
-        block.setWidth(10, type: .absoluteValueType, for: .padding, edge: .maxX)
+        block.setWidth(8, type: .absoluteValueType, for: .padding)
+        block.setWidth(12, type: .absoluteValueType, for: .padding, edge: .minX)
+        block.setWidth(12, type: .absoluteValueType, for: .padding, edge: .maxX)
         if row == 0 { block.backgroundColor = MarkdownStyle.tableHeaderFill }
         let alignment: NSTextAlignment
         switch table.columns[safe: column]?.alignment {
@@ -244,6 +259,7 @@ private struct BlockWriter {
                 attrs[.font] = traits.contains(.bold) ? MarkdownStyle.codeBold : MarkdownStyle.code
                 attrs[.foregroundColor] = MarkdownStyle.codeText
                 attrs[.backgroundColor] = MarkdownStyle.codeFill
+                attrs[MarkdownStyle.inlineCode] = true
                 // A little air inside the fill; no-break, so a wrap never
                 // leaves an empty green box at the end of a line.
                 s = "\u{202F}" + s + "\u{202F}"

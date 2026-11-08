@@ -126,3 +126,59 @@ Rendered, with coloured code, styled after Inge's reference screenshot:
 - Token-level syntax highlighting inside fenced code blocks (now one green).
 - Rounded corners on inline code (AppKit draws text backgrounds square).
 - Images are shown as alt text, not loaded.
+
+## Finetune (round 2, requested 2026-11-08)
+
+Done in PR #3 itself, so the upstream feature PR is built from the final code.
+
+- [x] Larger type and more air: body 14 -> 16 pt, more line and paragraph
+      spacing, bigger headings, more padding in code blocks (reference:
+      Inge's screenshot, left side)
+- [x] Colour per language in fenced code blocks: reuse the project's own
+      `PlainTextRenderer` scanner (make `scanLine` internal) with a keyword
+      table per language (swift, js/ts, python, go, rust, java/kotlin, c-like,
+      ruby, sql, shell, json, yaml/toml/ini, css, html/xml, dockerfile);
+      remap its colours to a palette that reads on the green fill.
+      No language or unknown language: stays plain green.
+- [x] Rounded corners on inline code: a TextKit 1 `NSLayoutManager` subclass
+      that rounds the background fill of inline-code runs; small opt-in hook
+      in `TextPreviewController` so other previewers are untouched.
+- [ ] Re-render light/dark, rebuild, manual test by Inge
+- [ ] Upstream feature PR to y-a-v-a without tasks/ and CHANGELOG.md
+
+### Review (round 2)
+
+- Sizes: body 16 pt (was 14), code 15, headings 32/26/21/18/16/15, line
+  spacing 5, paragraph gap 14, code block padding 18. The block after a list
+  gets a full paragraph gap (list items stay at 6).
+- `MarkdownCode.swift` (new, 108 lines): language tag -> `PlainTextRenderer.Syntax`
+  with keywords; runs the existing `scanLine` (now internal instead of
+  private) and maps its colours to a palette tuned for the green fill.
+- `MarkdownLayoutManager` rounds the background of runs marked as inline code
+  and leaves the line spacing out of the pill. Opt-in through a new
+  `TextPreviewController.makeLayoutManager()` hook; other previewers keep the
+  default `NSTextView()`.
+- Bug found and fixed before shipping: the hand-built TextKit 1 stack started
+  with a zero-width container and drew nothing. The test harness now drives
+  the real `PreviewViewController` instead of a copy of its setup, so it
+  would catch this.
+- Checked by pixel measurement that plain tokens in coloured blocks have the
+  same green as untagged blocks (they only look lighter next to keywords).
+
+### Review (round 3): block backgrounds cut off in Quick Look
+
+Symptom (Inge's screenshots): code blocks with square top or bottom corners,
+and empty bands that looked like blank lines inside or between blocks.
+
+- First theory (block gets only a partial frame per draw) disproved by
+  logging inside the real extension: the frame and character range were
+  always the full block.
+- Root cause: a text view draws in strips and only draws backgrounds for the
+  glyphs inside each strip. A strip covering only a block's padding has none
+  of its glyphs, so the block was not drawn there. Reproduced in the harness
+  with 24 pt strips.
+- Fix: `MarkdownLayoutManager` widens the rect in
+  `glyphRange(forBoundingRect:)` (and the no-layout variant) by 48 pt, more
+  than any padding plus margin. Drawing stays clipped to the strip.
+- Verified: renders with 17, 24 and 31 pt strips are pixel-identical to each
+  other and match the single-pass render (only a link's anti-aliasing differs).

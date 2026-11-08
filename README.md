@@ -260,7 +260,11 @@ keep the built-in preview.
 dotted rule), bold, italic, strikethrough, links, nested lists, task lists
 (`- [ ]` and `- [x]` as boxes), quotes, GitHub tables with their column
 alignment, and horizontal rules. Code, inline and fenced, is green monospace on
-a light-green background. Foundation's own CommonMark parser does the parsing,
+a light-green background with rounded corners. A fenced block with a language
+tag (`swift`, `js`/`ts`, `python`, `go`, `rust`, `java`/`kotlin`, `c`/`cpp`,
+`ruby`, `sql`, `sh`, `json`, `yaml`, `css`, `html`, `dockerfile`, `lua`, …)
+gets its comments, strings, numbers and keywords coloured by the same shallow
+scanner as the dotfile previewer. Foundation's own CommonMark parser does the parsing,
 so there is no dependency. YAML front matter is shown at the top as a grey
 block, images as their alt text (a preview cannot load them), and raw HTML as
 dimmed source. The first 2 MB is shown. Light and dark mode each have their own

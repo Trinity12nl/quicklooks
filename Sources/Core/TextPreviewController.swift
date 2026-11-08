@@ -9,8 +9,26 @@ import Quartz
 @MainActor
 class TextPreviewController: NSViewController, QLPreviewingController {
 
-    private let textView = NSTextView()
+    private lazy var textView: NSTextView = {
+        guard let layoutManager = type(of: self).makeLayoutManager() else { return NSTextView() }
+        // A TextKit 1 stack built by hand. The text view does not retain
+        // its storage, so the controller keeps it.
+        let unbounded = CGFloat.greatestFiniteMagnitude
+        let container = NSTextContainer(size: NSSize(width: 820, height: unbounded))
+        container.widthTracksTextView = true
+        layoutManager.addTextContainer(container)
+        customStorage.addLayoutManager(layoutManager)
+        let view = NSTextView(frame: NSRect(x: 0, y: 0, width: 820, height: 620), textContainer: container)
+        view.minSize = .zero
+        view.maxSize = NSSize(width: unbounded, height: unbounded)
+        return view
+    }()
+    private let customStorage = NSTextStorage()
     private let scrollView = NSScrollView()
+
+    /// Override to draw with your own layout manager, like the Markdown
+    /// previewer's rounded code backgrounds. Nil keeps the default view.
+    class func makeLayoutManager() -> NSLayoutManager? { nil }
 
     /// Override. Runs off whatever thread Quick Look calls us on.
     class func render(url: URL) throws -> NSAttributedString {

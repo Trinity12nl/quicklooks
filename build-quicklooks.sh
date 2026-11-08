@@ -64,7 +64,7 @@ EXTENSIONS=(
   "ClassFilePreviewer:classfile:com.sun.java-class:Core/ByteReader.swift Formats/ClassFile/ClassFileRenderer.swift Formats/ClassFile/ClassFilePreviewViewController.swift"
   "LogPreviewer:log:com.apple.log:Core/ByteReader.swift Formats/Log/LogRenderer.swift Formats/Log/LogPreviewViewController.swift"
   "FontPreviewer:font:nl.vincentbruijn.woff2,nl.vincentbruijn.woff:Core/ByteReader.swift Formats/Font/FontRenderer.swift Formats/Font/FontPreviewViewController.swift"
-  "MarkdownPreviewer:markdown:net.daringfireball.markdown:Core/ByteReader.swift Formats/Markdown/MarkdownStyle.swift Formats/Markdown/MarkdownRenderer.swift Formats/Markdown/MarkdownPreviewViewController.swift"
+  "MarkdownPreviewer:markdown:net.daringfireball.markdown:Core/ByteReader.swift Formats/Dotfile/PlainTextRenderer.swift Formats/Markdown/MarkdownStyle.swift Formats/Markdown/MarkdownCode.swift Formats/Markdown/MarkdownRenderer.swift Formats/Markdown/MarkdownPreviewViewController.swift"
 )
 SHARED="Core/PreviewStyle.swift Core/TextPreviewController.swift"
 

@@ -19,6 +19,32 @@ Fix in `@theme inline`: `--font-sans: var(--font-sans)` is circular.
 --color-loss: var(--loss);
 ```
 
+```swift
+// Keywords, strings, numbers and comments, coloured per language.
+func greet(_ name: String) -> String {
+    let count = 42
+    return "Hello, \(name)! \(count)"
+}
+```
+
+```python
+def total(items):  # a comment
+    return sum(i.price for i in items if i is not None)
+```
+
+```bash
+export PATH="$HOME/bin:$PATH"
+for f in *.md; do echo "$f"; done
+```
+
+```json
+{ "name": "quicklooks", "version": 1, "private": true }
+```
+
+```
+No language tag: plain green.
+```
+
 ### Lists
 
 - First item
