@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **NEW** PHP (`.php`, `.phtml`) and JavaScript (`.js`, `.mjs`, `.cjs`,
+  `.jsx`) files are coloured by the dotfile previewer: comments, strings,
+  numbers, keywords, and PHP `$variables`. Minified JavaScript gets line
+  breaks first, so a multi-megabyte bundle opens in under a second.
+
 - **NEW** Python (`.py`, `.pyw`, `.pyi`) and SQL (`.sql`) files are coloured
   by the dotfile previewer: comments, strings, numbers, keywords, and Python
   `"""` docstrings as a block. `.sql` is also claimed under Sequel Ace's type.
