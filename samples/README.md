@@ -15,6 +15,8 @@ their own comment styles. `.binaryrc` is binary and should get the icon view.
 must keep INI rules, so `;` and `#` inside a value are not comments, `version:`
 splits on its colon and `C:\tmp` does not. `sample.config` is a .NET
 `web.config`: XML under a name typed as TOML, so it must get the XML preview.
+`sample.py` has a docstring spanning lines that mentions keywords, and `#`
+inside a string; `sample.sql` doubles as the SQL sample.
 `sample.sqlite` is built from `sample.sql` (`sqlite3 sample.sqlite < sample.sql`)
 and holds a quoted table name, a `WITHOUT ROWID` table, an FTS5 table whose
 storage tables should fold away, generated and foreign-key columns, blobs,

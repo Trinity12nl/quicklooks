@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **NEW** Python (`.py`, `.pyw`, `.pyi`) and SQL (`.sql`) files are coloured
+  by the dotfile previewer: comments, strings, numbers, keywords, and Python
+  `"""` docstrings as a block. `.sql` is also claimed under Sequel Ace's type.
+
 - **FIX** An XML `.config` (`web.config`, `app.config`) got INI colours; the
   INI previewer now hands a file that starts with `<` to the XML renderer.
 
