@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **NEW** Folder previewer: a folder shows a Finder-style list (name, date,
+  size, kind, icons) with each subfolder open one level deep, its total and
+  item count on top, and its path at the bottom; click a folder in the path to
+  copy its path for Terminal. A toggle shows hidden files; `.DS_Store` never.
+
 - **NEW** PHP (`.php`, `.phtml`) and JavaScript (`.js`, `.mjs`, `.cjs`,
   `.jsx`) files are coloured by the dotfile previewer: comments, strings,
   numbers, keywords, and PHP `$variables`. Minified JavaScript gets line
